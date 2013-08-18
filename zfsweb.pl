@@ -33,8 +33,10 @@ use URI::Escape;
 
 ### Configurable knobs
 
-# Where this file is located.
-my $ZFSWEB = "/zfsweb/zfsweb.pl";
+my $ZFSWEB_PATH = "/zfsweb";
+my $ZFSWEB = "$ZFSWEB_PATH/zfsweb.pl";
+my $LOGO = "$ZFSWEB_PATH/logo.png";
+my $LOGO_ALT = "zfsweb";
 
 # Data stores _must_ be ZFS filesystems.
 my %STORES = (
@@ -63,7 +65,7 @@ sub HEADER {
       <div class="row">
         <div class="col-md-8 col-md-offset-2">
           <h1 class="text-center">
-            <img class="text-center" src="/logo.jpg" alt="[Professional Utility Board]" /><br />Backup Browser</h1>
+            <img class="text-center" src="$LOGO" alt="[$LOGO_ALT]" /></h1>
           <hr />
 
 EOF
