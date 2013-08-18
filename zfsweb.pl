@@ -31,9 +31,22 @@ use File::MimeInfo::Magic;
 use Number::Format qw(:subs);
 use URI::Escape;
 
-# backup.pl path
-my $BP = "/zed/backup.pl";
+### Configurable knobs
 
+# Where this file is located.
+my $ZFSWEB = "/zfsweb/zfsweb.pl";
+
+# Data stores _must_ be ZFS filesystems.
+my %STORES = (
+    'pub' => '/zed/pubdata',
+    'homes' => '/home',
+  );
+
+### End configurable knobs
+
+### Utility functions
+
+# Print header.
 sub HEADER {
   print (header());
   print <<EOF;
@@ -56,12 +69,7 @@ sub HEADER {
 EOF
 }
 
-# Data stores _must_ be top-level filesystems.
-my %stores = (
-    'pub' => '/zed/pubdata',
-    'homes' => '/home',
-  );
-
+# Recursively breadcrumb.
 sub _crumb {
   my ($store, $point, $path, $last) = @_;
 
@@ -81,25 +89,27 @@ sub _crumb {
 EOF
   } else {
     print <<EOF;
-  <li><a href="$BP?path=$store\@$point:$path/">$slice</a></li>
+  <li><a href="$ZFSWEB?path=$store\@$point:$path/">$slice</a></li>
 EOF
   }
 }
+
+# Breadcrumb trail.
 sub crumbs {
   my ($store, $point, $path) = @_;
 
   print <<EOF;
 <ol class="breadcrumb">
-  <li><a href="$BP">zed</a></li>
+  <li><a href="$ZFSWEB">zed</a></li>
 EOF
 
   if ($store) {
     print <<EOF;
-  <li><a href="$BP?path=$store:/">$store</a></li>
+  <li><a href="$ZFSWEB?path=$store:/">$store</a></li>
 EOF
     if ($point) {
       print <<EOF;
-  <li><a href="$BP?path=$store\@$point:/">\@$point</a></li>
+  <li><a href="$ZFSWEB?path=$store\@$point:/">\@$point</a></li>
 EOF
       if ($path ne "/") {
         _crumb($store, $point, $path, 1);
@@ -112,6 +122,46 @@ EOF
 EOF
 }
 
+# Takes a percentage.  Returns a progressbar.  
+sub progressbar {
+  my ($pc) = @_;
+
+  return <<BAR;
+<div class="progress progress-striped">
+  <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="%pc" aria-valuemin="0" aria-valuemax="100" style="width: $pc\%">
+    <span class="sr-only">$pc\% full</span>
+  </div>
+</div>
+BAR
+}
+
+# Takes a file path; calculates the mime type of that file.
+sub mime_type {
+  my ($fullPath) = @_;
+
+  my $mime_type = mimetype($fullPath);
+  $mime_type = "application/octet-stream" unless $mime_type;
+
+  return $mime_type;
+}
+
+# store, point, path => real file path
+sub fullPath {
+  my ($store, $point, $path) = @_;
+
+  $path = "" unless (defined($path));
+
+  my $fullPath = "";
+
+  $fullPath = $STORES{$store}."/.zfs/snapshot/".$point.$path;
+  $fullPath = $STORES{$store}.$path if ($point eq "_");
+
+  return $fullPath;
+}
+
+### Renderers
+
+# List the datastores.
 sub renderStores {
   print <<EOF;
 <h2>Index of stores</h2>
@@ -123,22 +173,16 @@ EOF
 <div class="list-group">
 EOF
 
-  foreach my $store (keys %stores) {
-    my $path = $stores{$store};
+  foreach my $store (keys %STORES) {
+    my $path = $STORES{$store};
     my $fs = df($path);
     my $pc = $fs->{per};
     my $summary = "";
     $summary .= "Stored at <tt>$path</tt>.\n";
-    $summary .= <<FULLBAR;
-<div class="progress progress-striped">
-  <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="%pc" aria-valuemin="0" aria-valuemax="100" style="width: $pc\%">
-    <span class="sr-only">$pc\% full</span>
-  </div>
-</div>
-FULLBAR
+    $summary .= progressbar($pc);
     
     print <<EOF;
-<a href="$BP?path=$store:/" class="list-group-item">
+<a href="$ZFSWEB?path=$store:/" class="list-group-item">
   <h4 class="list-group-item-heading">$store</h4>
   <p class="list-group-item-text">$summary</p>
 </a>
@@ -150,10 +194,11 @@ EOF
 EOF
 }
 
+# List the snapshots of a datastore.
 sub renderSnapshots {
   my ($store) = @_;
 
-  my $path = $stores{$store};
+  my $path = $STORES{$store};
 
   print <<EOF;
 <h2>Index of snapshots of $store</h2>
@@ -177,7 +222,7 @@ EOF
 
   foreach my $snap (reverse @snaps) {
     print <<EOF;
-<a href="$BP?path=$store\@$snap:/" class="list-group-item">\@ $snap</a>
+<a href="$ZFSWEB?path=$store\@$snap:/" class="list-group-item">\@ $snap</a>
 EOF
   }
 
@@ -186,12 +231,11 @@ EOF
 EOF
 }
 
+# list the contents of a directory
 sub renderDir {
   my ($store, $point, $path, $sort) = @_;
 
-  my $fullPath = "";
-  $fullPath = $stores{$store}."/.zfs/snapshot/".$point.$path;
-  $fullPath = $stores{$store}.$path if ($point eq "_");
+  my $fullPath = fullPath($store, $point, $path);
 
   tie my %dir, 'IO::Dir', $fullPath;
   my @files = keys %dir;
@@ -270,7 +314,7 @@ EOF
 
     $link .= "&sort=$sort" if $sort;
     print <<EOF;
-<a href="$BP?path=$link" class="list-group-item"><i class="icon-fixed-width $icon"></i> $name <span class="badge pull-right">$info</span></a>
+<a href="$ZFSWEB?path=$link" class="list-group-item"><i class="icon-fixed-width $icon"></i> $name <span class="badge pull-right">$info</span></a>
 EOF
   }
 
@@ -279,21 +323,11 @@ EOF
 EOF
 }
 
-sub mime_type {
-  my ($fullPath) = @_;
-
-  my $mime_type = mimetype($fullPath);
-  $mime_type = "application/octet-stream" unless $mime_type;
-
-  return $mime_type;
-}
-
+# render file
 sub renderFile {
   my ($store, $point, $path) = @_;
 
-  my $fullPath = "";
-  $fullPath = $stores{$store}."/.zfs/snapshot/".$point.$path;
-  $fullPath = $stores{$store}.$path if ($point eq "_");
+  my $fullPath = fullPath($store, $point, $path);
 
   my $file = basename $path;
 
@@ -317,7 +351,7 @@ sub renderFile {
 EOF
 
   unless ($point eq "_") {
-    if (compare( $stores{$store}."/.zfs/snapshot/".$point.$path, $stores{$store}.$path) == 0) {
+    if (compare( $STORES{$store}."/.zfs/snapshot/".$point.$path, $STORES{$store}.$path) == 0) {
       print <<EOF;
     <div class="alert alert-success"><i class="icon-fixed-width icon-check"></i> This is equivalent to the latest version!</div>
 EOF
@@ -332,8 +366,8 @@ EOF
   my $brn = uri_escape "$store\@_:$path";
 
   print <<EOF;
-<a href="$BP?path=$brl&action=dl" class="btn btn-primary btn-lg btn-block"><i class="icon-fixed-width icon-download-alt"></i> Download This</a>
-<a href="$BP?path=$brn&action=dl" class="btn btn-default btn-lg btn-block"><i class="icon-fixed-width icon-download-alt"></i> Download Current</a>
+<a href="$ZFSWEB?path=$brl&action=dl" class="btn btn-primary btn-lg btn-block"><i class="icon-fixed-width icon-download-alt"></i> Download This</a>
+<a href="$ZFSWEB?path=$brn&action=dl" class="btn btn-default btn-lg btn-block"><i class="icon-fixed-width icon-download-alt"></i> Download Current</a>
 EOF
 
   print <<EOF;
@@ -341,30 +375,12 @@ EOF
   <div class="col-md-7">
     <table class="table">
       <tbody>
-        <tr>
-          <th>Size</th>
-          <td>$size</td>
-        </tr>
-        <tr>
-          <th>Created at</th>
-          <td>$ctime</td>
-        </tr>
-        <tr>
-          <th>Last modified at</th>
-          <td>$mtime</td>
-        </tr>
-        <tr>
-          <th>MIME Type</th>
-          <td>$mime_type</td>
-        </tr>
-        <tr>
-          <th>Owner/Group</th>
-          <td>$uid / $gid</td>
-        </tr>
-        <tr>
-          <th>File Mode</th>
-          <td>$mode</td>
-        </tr>
+        <tr><th>Size</th><td>$size</td></tr>
+        <tr><th>Created at</th><td>$ctime</td></tr>
+        <tr><th>Last modified at</th><td>$mtime</td></tr>
+        <tr><th>MIME Type</th><td>$mime_type</td></tr>
+        <tr><th>Owner/Group</th><td>$uid / $gid</td></tr>
+        <tr><th>File Mode</th><td>$mode</td></tr>
       </tbody>
     </table>
   </div>
@@ -372,22 +388,27 @@ EOF
 EOF
 }
 
+### Dispatcher
+
 if (param('path')) {
   my $dirname = param('path');
+
+  # store@point:path
+  # - validate store
+  # - validate point
+  # - screw the path (XXX we should probably validate it too) 
 
   my ($storepoint, $path) = split(/:/, $dirname, 2);
   my ($store, $point) = split(/@/, $storepoint, 2);
   $path = "/" if ($path eq "//");
 
-  unless (exists($stores{$store})) {
+  unless (exists($STORES{$store})) {
     HEADER();
     print "<p class=\"text-danger\">Unknown store $store</p>\n";
     goto END;
   }
 
-  my $fullPath = "";
-  $fullPath = $stores{$store}."/.zfs/snapshot/".$point;
-  $fullPath = $stores{$store} if ($point eq "_");
+  my $fullPath = fullPath($store, $point, undef);
 
   unless (-e $fullPath) {
     HEADER();
@@ -396,8 +417,7 @@ if (param('path')) {
   }
 
   if ((param('action')) && (param('action') eq "dl")) {
-    $fullPath = $stores{$store}."/.zfs/snapshot/".$point.$path;
-    $fullPath = $stores{$store}.$path if ($point eq "_");
+    $fullPath = fullPath($store, $point, undef);
 
     my $name = basename $path;
     my $mime_type = mimetype($fullPath);
