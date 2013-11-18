@@ -275,10 +275,10 @@ EOF
   </div>
   <div class="col-md-3">
     <div class="btn-group">
-      <a href="$url&sort=az" class="btn btn-default"><i class="icon-sort-by-alphabet"></i></a>
-      <a href="$url&sort=za" class="btn btn-default"><i class="icon-sort-by-alphabet-alt"></i></a>
-      <a href="$url&sort=mt" class="btn btn-default"><i class="icon-sort-by-order"></i></a>
-      <a href="$url&sort=tm" class="btn btn-default"><i class="icon-sort-by-order-alt"></i></a>
+      <a href="$url&sort=az" class="btn btn-default"><i class="fa fa-sort-alpha-asc"></i></a>
+      <a href="$url&sort=za" class="btn btn-default"><i class="fa fa-sort-alpha-desc"></i></a>
+      <a href="$url&sort=mt" class="btn btn-default"><i class="fa fa-sort-numeric-asc"></i></a>
+      <a href="$url&sort=tm" class="btn btn-default"><i class="fa fa-sort-numeric-desc"></i></a>
     </div>
   </div>
 </div>
@@ -286,7 +286,7 @@ EOF
 EOF
 
   foreach my $file (@files) {
-    my $icon = "icon-circle-blank";
+    my $icon = "fa-circle-o";
     my $link = "$store\@$point:$path$file";
     my $name = $file;
     my $info = format_bytes($dir{$file}->size). "b |"
@@ -295,7 +295,7 @@ EOF
     if ($file eq ".") {
       next;
     } elsif ($file eq "..") {
-      $icon = "icon-share-alt icon-rotate-270";
+      $icon = "fa-share fa-rotate-270";
       $name = "[parent directory]";
       $info = "";
 
@@ -305,18 +305,18 @@ EOF
         $link = "$store\@$point:". dirname($path) ."/";
       }
     } elsif (-d $fullPath."/".$file) {
-      $icon = "icon-folder-open";
+      $icon = "fa-folder-open";
       $link .= "/";
       $info = "upd. ". strftime("%F %T", localtime $dir{$file}->mtime);
     } elsif (-f $fullPath."/".$file) {
-      $icon = "icon-file"; 
+      $icon = "fa-file"; 
     }
 
     $link = uri_escape($link);
 
     $link .= "&sort=$sort" if $sort;
     print <<EOF;
-<a href="$ZFSWEB?path=$link" class="list-group-item"><i class="icon-fixed-width $icon"></i> $name <span class="badge pull-right">$info</span></a>
+<a href="$ZFSWEB?path=$link" class="list-group-item"><i class="fa fa-fw $icon"></i> $name <span class="badge pull-right">$info</span></a>
 EOF
   }
 
@@ -355,11 +355,11 @@ EOF
   unless ($point eq "_") {
     if (compare( $STORES{$store}."/.zfs/snapshot/".$point.$path, $STORES{$store}.$path) == 0) {
       print <<EOF;
-    <div class="alert alert-success"><i class="icon-fixed-width icon-check"></i> This is equivalent to the latest version!</div>
+    <div class="alert alert-success"><i class="fa fa-fw fa-check-square-o"></i> This is equivalent to the latest version.</div>
 EOF
     } else {
       print <<EOF;
-    <div class="alert"><i class="icon-fixed-width icon-exclamation"></i> This differs from the current version.</div>
+    <div class="alert alert-info"><i class="fa fa-fw fa-exclamation"></i> This differs from the current version.</div>
 EOF
     }
   }
@@ -368,8 +368,8 @@ EOF
   my $brn = uri_escape "$store\@_:$path";
 
   print <<EOF;
-<a href="$ZFSWEB?path=$brl&action=dl" class="btn btn-primary btn-lg btn-block"><i class="icon-fixed-width icon-download-alt"></i> Download This</a>
-<a href="$ZFSWEB?path=$brn&action=dl" class="btn btn-default btn-lg btn-block"><i class="icon-fixed-width icon-download-alt"></i> Download Current</a>
+<a href="$ZFSWEB?path=$brl&action=dl" class="btn btn-primary btn-lg btn-block"><i class="fa fa-fw fa-download"></i> Download This</a>
+<a href="$ZFSWEB?path=$brn&action=dl" class="btn btn-default btn-lg btn-block"><i class="fa fa-fw fa-download"></i> Download Current</a>
 EOF
 
   print <<EOF;
