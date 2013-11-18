@@ -46,9 +46,9 @@ my %STORES = (
 
 ### End configurable knobs
 
-### Utility functions
-
-# Print header.
+###
+### Look and feel
+###
 sub HEADER {
   print (header());
   print <<EOF;
@@ -70,6 +70,11 @@ sub HEADER {
 
 EOF
 }
+
+
+###
+### Breadcrumbs.
+###
 
 # Recursively breadcrumb.
 sub _crumb {
@@ -124,7 +129,9 @@ EOF
 EOF
 }
 
-# Takes a percentage.  Returns a progressbar.  
+###
+### Takes a percentage.  Returns a progressbar.
+###
 sub progressbar {
   my ($pc) = @_;
 
@@ -137,7 +144,9 @@ sub progressbar {
 BAR
 }
 
-# Takes a file path; calculates the mime type of that file.
+###
+### Takes a file path; calculates the mime type of that file.
+###
 sub mime_type {
   my ($fullPath) = @_;
 
