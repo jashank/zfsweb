@@ -71,6 +71,30 @@ sub HEADER {
 EOF
 }
 
+sub ALERT {
+  my ($text) = @_;
+
+  print "<p class=\"text-danger\">".$text."</p>\n";
+}
+
+sub FOOTER {
+  print <<EOF;
+
+          <footer>
+	    <hr />
+	    <p class="text-center">Copyright &copy; 2013 Professional Utility Board.  All rights reserved.<br />
+	      <small><a href="https://github.com/Jashank/zfsweb">zfsweb</a> by <a href="http://twitter.com/JashankJ">\@JashankJ</a>.<br />
+	        <a href="http://getbootstrap.com/">Bootstrap</a> | <a href="http://www.perl.org/">Perl</a> | <a href="https://java.net/projects/solaris-zfs">ZFS</a></small></p>
+          </footer>
+        </div>
+      </div>
+    </div>
+    <script src="//code.jquery.com/jquery.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
+  </body>
+</html>
+EOF
+}
 
 ###
 ### Breadcrumbs.
@@ -415,16 +439,22 @@ if (param('path')) {
 
   unless (exists($STORES{$store})) {
     HEADER();
-    print "<p class=\"text-danger\">Unknown store $store</p>\n";
-    goto END;
+    ALERT("Unknown store $store");
+    FOOTER();
   }
 
   my $fullPath = fullPath($store, $point, undef);
 
+  if ($fullPath =~ m/\.\./) {
+    HEADER();
+    ALERT("Attempted '..' attack.");
+    FOOTER();
+  }
+
   unless (-e $fullPath) {
     HEADER();
-    print "<p class=\"text-danger\">Unknown snapshot $point</p>\n";
-    goto END;
+    ALERT("Unknown snapshot $point");
+    FOOTER();
   }
 
   if ((param('action')) && (param('action') eq "dl")) {
@@ -450,7 +480,7 @@ if (param('path')) {
   unless (defined($point)) {
     HEADER();
     renderSnapshots($store);
-    goto END;
+    FOOTER();
   }
 
 #if (($path eq "/") or ($path eq ""));
@@ -464,30 +494,12 @@ if (param('path')) {
   } else {
     renderFile($store, $point, $path);
   }
-  goto END;
+  FOOTER();
 
 } else {
   HEADER();
   renderStores();
-  goto END;
+  FOOTER();
 }
-
-END:
-print <<EOF;
-
-          <footer>
-	    <hr />
-	    <p class="text-center">Copyright &copy; 2013 Professional Utility Board.  All rights reserved.<br />
-	      <small><a href="https://github.com/Jashank/zfsweb">zfsweb</a> by <a href="http://twitter.com/JashankJ">\@JashankJ</a>.<br />
-	        <a href="http://getbootstrap.com/">Bootstrap</a> | <a href="http://www.perl.org/">Perl</a> | <a href="https://java.net/projects/solaris-zfs">ZFS</a></small></p>
-          </footer>
-        </div>
-      </div>
-    </div>
-    <script src="//code.jquery.com/jquery.js"></script>
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
-  </body>
-</html>
-EOF
 
 __END__
