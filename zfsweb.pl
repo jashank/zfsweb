@@ -46,7 +46,9 @@ my %STORES = (
 
 ### End configurable knobs
 
-my $VERSION = '0.2';
+my $VERSION = '0.2.1';
+my $BS_VERSION = '3.0.3';
+my $FA_VERSION = '4.0.3';
 
 ###
 ### Look and feel
@@ -59,8 +61,8 @@ sub HEADER {
   <head>
     <title>zfsweb</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" />
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/$BS_VERSION/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/$FA_VERSION/css/font-awesome.css" />
   </head>
   <body>
     <div class="container">
@@ -86,13 +88,17 @@ sub FOOTER {
 	    <hr />
 	    <p class="text-center">Copyright &copy; 2013 Professional Utility Board.  All rights reserved.<br />
 	      <small><a href="https://github.com/Jashank/zfsweb">zfsweb</a> v$VERSION by <a href="http://twitter.com/JashankJ">\@JashankJ</a>.<br />
-	        <a href="http://getbootstrap.com/">Bootstrap</a> | <a href="http://www.perl.org/">Perl</a> | <a href="https://java.net/projects/solaris-zfs">ZFS</a></small></p>
+	        <a href="http://getbootstrap.com/">Bootstrap</a> v$BS_VERSION |
+	        <a href="http://fortawesome.github.io/Font-Awesome/">Font Awesome</a> v$FA_VERSION |
+                <a href="http://www.perl.org/">Perl</a> |
+                <a href="https://java.net/projects/solaris-zfs">ZFS</a>
+              </small></p>
           </footer>
         </div>
       </div>
     </div>
     <script src="//code.jquery.com/jquery.js"></script>
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/$BS_VERSION/js/bootstrap.min.js"></script>
   </body>
 </html>
 EOF
