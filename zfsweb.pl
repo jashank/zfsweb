@@ -46,6 +46,8 @@ my %STORES = (
 
 ### End configurable knobs
 
+my $VERSION = '0.2';
+
 ###
 ### Look and feel
 ###
@@ -83,7 +85,7 @@ sub FOOTER {
           <footer>
 	    <hr />
 	    <p class="text-center">Copyright &copy; 2013 Professional Utility Board.  All rights reserved.<br />
-	      <small><a href="https://github.com/Jashank/zfsweb">zfsweb</a> by <a href="http://twitter.com/JashankJ">\@JashankJ</a>.<br />
+	      <small><a href="https://github.com/Jashank/zfsweb">zfsweb</a> v$VERSION by <a href="http://twitter.com/JashankJ">\@JashankJ</a>.<br />
 	        <a href="http://getbootstrap.com/">Bootstrap</a> | <a href="http://www.perl.org/">Perl</a> | <a href="https://java.net/projects/solaris-zfs">ZFS</a></small></p>
           </footer>
         </div>
