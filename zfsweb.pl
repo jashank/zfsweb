@@ -458,14 +458,14 @@ if (param('path')) {
   }
 
   if ((param('action')) && (param('action') eq "dl")) {
-    $fullPath = fullPath($store, $point, undef);
+    $fullPath = fullPath($store, $point, $path);
 
     my $name = basename $path;
     my $mime_type = mimetype($fullPath);
 
     print "Content-type: $mime_type\n";
     print "Content-Disposition: attachment; filename=$name\n";
-    print "Content-Description: $name at $point\n\n";
+    print "Content-Description: $store:$path at $point\n\n";
 
     {
       open my ($fh), $fullPath;
