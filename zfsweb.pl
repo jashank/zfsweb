@@ -102,6 +102,7 @@ sub FOOTER {
   </body>
 </html>
 EOF
+  exit 0;
 }
 
 ###
