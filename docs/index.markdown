@@ -60,6 +60,12 @@ The default stores reflect a configuration that users may find somewhat useful.
 
     my $LOGO_ALT = "zfsweb";
 
+`$STORAGE` is the name of the data server, which appears at the
+beginning of the breadcrumbs list in the user interface. 
+
+    my $STORAGE = "zed";
+
+
 ### Securing zfsweb ###
 
 __`zfsweb` has no security built in__.
@@ -99,4 +105,3 @@ _Download This_ downloads the displayed version of the file.  _Download Current_
 In the `_` snapshot, the file's status with respect to the current revision is not displayed.
 
 ![The file view.](img/elspeth.1.20130818.024312.png)
-

@@ -11,7 +11,8 @@ and friendly.
 1. Create a CGI-capable directory in a web root on your ZFS system.
 2. Copy `zfsweb.pl` and a logo (preferably `logo/zfsweb.png`) to that
    directory as `zfsweb.pl` and `logo.png`, respectively.
-3. Change `$ZFSWEB_PATH` (and, if necessary, `$LOGO` and `$LOGO_ALT`).
+3. Change `$ZFSWEB_PATH` and `$STORAGE`
+   (and, if necessary, `$LOGO` and `$LOGO_ALT`).
 4. Change `%STORES` to point at the filesystems.
 
 ### Full Documentation ###

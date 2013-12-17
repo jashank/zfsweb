@@ -37,6 +37,7 @@ my $ZFSWEB_PATH = "/zfsweb";
 my $ZFSWEB = "$ZFSWEB_PATH/zfsweb.pl";
 my $LOGO = "$ZFSWEB_PATH/logo.png";
 my $LOGO_ALT = "zfsweb";
+my $STORAGE = "zed";
 
 # Data stores _must_ be ZFS filesystems.
 my %STORES = (
@@ -46,7 +47,7 @@ my %STORES = (
 
 ### End configurable knobs
 
-my $VERSION = '0.2.1';
+my $VERSION = '0.2.2';
 my $BS_VERSION = '3.0.3';
 my $FA_VERSION = '4.0.3';
 
@@ -140,7 +141,7 @@ sub crumbs {
 
   print <<EOF;
 <ol class="breadcrumb">
-  <li><a href="$ZFSWEB">zed</a></li>
+  <li><a href="$ZFSWEB">$STORAGE</a></li>
 EOF
 
   if ($store) {
