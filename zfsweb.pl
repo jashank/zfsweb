@@ -198,10 +198,17 @@ sub fullPath {
 
   my $fullPath = "";
 
-  $fullPath = $STORES{$store}."/.zfs/snapshot/".$point.$path;
-  $fullPath = $STORES{$store}.$path if ($point eq "_");
+  if (not defined($point)) {
+    $fullPath = $STORES{$store}."/.zfs/snapshot/".$point.$path;
+    $fullPath = $STORES{$store}.$path if ($point eq "_");
 
-  return $fullPath;
+    return $fullPath;
+  } else {
+    ALERT("Cannot resolve point");
+    FOOTER();
+
+    return undef;
+  }
 }
 
 ### Renderers
